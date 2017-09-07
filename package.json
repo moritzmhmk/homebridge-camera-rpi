@@ -1,0 +1,32 @@
+{
+  "name": "homebridge-camera-rpi",
+  "version": "0.0.1",
+  "description": "raspberry pi camera plugin for homebridge",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moritzmhmk/homebridge-camera-rpi.git"
+  },
+  "keywords": [
+    "homebridge-plugin"
+  ],
+  "author": "Moritz K.",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/moritzmhmk/homebridge-camera-rpi/issues"
+  },
+  "engines": {
+    "node": ">=5.0.0",
+    "homebridge": ">=0.4.5"
+  },
+  "homepage": "https://github.com/moritzmhmk/homebridge-camera-rpi#readme",
+  "dependencies": {
+    "ip": "^1.1.5"
+  },
+  "devDependencies": {
+    "hap-nodejs": "^0.4.32"
+  }
+}
