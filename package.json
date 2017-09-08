@@ -1,6 +1,6 @@
 {
   "name": "homebridge-camera-rpi",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "raspberry pi camera plugin for homebridge",
   "main": "index.js",
   "scripts": {
@@ -27,6 +27,7 @@
     "ip": "^1.1.5"
   },
   "devDependencies": {
-    "hap-nodejs": "^0.4.32"
+    "hap-nodejs": "^0.4.32",
+    "minimist": "^1.2.0"
   }
 }
