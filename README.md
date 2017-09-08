@@ -53,7 +53,7 @@ node standalone.js
 Description=HAP Camera RPi
 
 [Service]
-ExecStart=/usr/local/bin/node /opt/homebridge-camera-rpi/standalone.js
+ExecStart=/usr/local/bin/node /opt/homebridge-camera-rpi/standalone.js -c /etc/homebridge-camera-rpi.conf.json
 WorkingDirectory=/opt/homebridge-camera-rpi
 Restart=always
 RestartSec=10
@@ -69,3 +69,16 @@ WantedBy=multi-user.target
 sudo systemctl enable hap-camera-rpi
 sudo systemctl start hap-camera-rpi
 ```
+
+create config file `/etc/homebridge-camera-rpi.conf.json`:
+
+```json
+{
+  "name": "Pi Camera",
+  "id": "Pi Camera",
+  "pincode": "031-45-154",
+  "username": "EC:23:3D:D3:CE:CE"
+}
+```
+
+`id` is used to generate the uuid and defaults to `name` when not defined
