@@ -1,6 +1,12 @@
 # homebridge-camera-rpi
 raspberry pi camera plugin for homebridge
 
+## Prerequisite
+
+* camera module activated (`raspi-config`)
+* module `bcm2835-v4l2` loaded (`sudo modprobe bcm2835-v4l2`)
+* ffmpeg installed (`sudo apt install ffmpeg`)
+
 ## Installation (as homebridge plugin)
 
 ```bash
@@ -63,14 +69,7 @@ User=pi
 WantedBy=multi-user.target
  ```
  
- enable and start the service:
- 
- ```bash
-sudo systemctl enable hap-camera-rpi
-sudo systemctl start hap-camera-rpi
-```
-
-create config file `/etc/homebridge-camera-rpi.conf.json`:
+ create config file `/etc/homebridge-camera-rpi.conf.json`:
 
 ```json
 {
@@ -82,3 +81,10 @@ create config file `/etc/homebridge-camera-rpi.conf.json`:
 ```
 
 `id` is used to generate the uuid and defaults to `name` when not defined
+ 
+ enable and start the service:
+ 
+ ```bash
+sudo systemctl enable hap-camera-rpi
+sudo systemctl start hap-camera-rpi
+```
