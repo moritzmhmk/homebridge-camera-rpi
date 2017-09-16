@@ -19,9 +19,8 @@ function Camera (hap) {
     srtp: true, // Supports SRTP AES_CM_128_HMAC_SHA1_80 encryption
     video: {
       resolutions: [
-        [1920, 1080, 30], // Width, Height, framerate
-        [320, 240, 15], // Apple Watch requires this configuration
-        [1280, 960, 30],
+        //[1920, 1080, 30], // Width, Height, framerate
+        //[1280, 960, 30],
         [1280, 720, 30],
         [1024, 768, 30],
         [640, 480, 30],
@@ -29,6 +28,7 @@ function Camera (hap) {
         [480, 360, 30],
         [480, 270, 30],
         [320, 240, 30],
+        [320, 240, 15], // Apple Watch requires this configuration
         [320, 180, 30]
       ],
       codec: {
