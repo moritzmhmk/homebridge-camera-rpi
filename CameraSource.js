@@ -161,6 +161,12 @@ Camera.prototype.handleStreamRequest = function (request) {
       bitrate = request['video']['max_bit_rate']
     }
 
+    let v4l2ctlCommand = `--set-ctrl video_bitrate=${bitrate}000`
+    console.log(v4l2ctlCommand)
+    let v4l2ctl = spawn('v4l2-ctl', v4l2ctlCommand.split(' '), {env: process.env})
+    v4l2ctl.on('error', function(err) { console.log(`error while setting bitrate: ${err.message}`) })
+    v4l2ctl.stderr.on('data', function (data) { console.log('v4l2-ctl', String(data)) })
+
     let srtp = this.pendingSessions[sessionIdentifier]['video_srtp'].toString('base64')
     let address = this.pendingSessions[sessionIdentifier]['address']
     let port = this.pendingSessions[sessionIdentifier]['video_port']
