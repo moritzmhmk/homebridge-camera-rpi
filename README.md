@@ -30,6 +30,10 @@ edit ``config.json`` and add platform ``rpi-camera``
 }
 ```
 
+restart `homebridge`
+
+add extra camera accessory in the home app (the setup code is the same as for homebridge)
+
 ## Installation (standalone)
 
 optionally install in `opt`:
