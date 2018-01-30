@@ -5,8 +5,9 @@ var spawn = require('child_process').spawn
 
 module.exports = Camera
 
-function Camera (hap) {
+function Camera (hap, conf) {
   this.hap = hap
+  this.conf = conf
   this.services = []
   this.streamControllers = []
 
@@ -50,7 +51,9 @@ function Camera (hap) {
       ]
     }
   }
-
+  this._v4l2CTLSetCTRL('rotate', this.conf.rotate || 0)
+  this._v4l2CTLSetCTRL('vertical_flip', this.conf.verticalFlip ? 1 : 0)
+  this._v4l2CTLSetCTRL('horizontal_flip', this.conf.horizontalFlip ? 1 : 0)
   this.createCameraControlService()
   this._createStreamControllers(2, options)
 }
@@ -161,11 +164,7 @@ Camera.prototype.handleStreamRequest = function (request) {
       bitrate = request['video']['max_bit_rate']
     }
 
-    let v4l2ctlCommand = `--set-ctrl video_bitrate=${bitrate}000`
-    console.log(v4l2ctlCommand)
-    let v4l2ctl = spawn('v4l2-ctl', v4l2ctlCommand.split(' '), {env: process.env})
-    v4l2ctl.on('error', function(err) { console.log(`error while setting bitrate: ${err.message}`) })
-    v4l2ctl.stderr.on('data', function (data) { console.log('v4l2-ctl', String(data)) })
+    this._v4l2CTLSetCTRL('video_bitrate', `${bitrate}000`)
 
     let srtp = this.pendingSessions[sessionIdentifier]['video_srtp'].toString('base64')
     let address = this.pendingSessions[sessionIdentifier]['address']
@@ -208,4 +207,12 @@ Camera.prototype._createStreamControllers = function (maxStreams, options) {
     self.services.push(streamController.service)
     self.streamControllers.push(streamController)
   }
+}
+
+Camera.prototype._v4l2CTLSetCTRL = function (name, value) {
+  let v4l2ctlCommand = `--set-ctrl ${name}=${value}`
+  console.log(v4l2ctlCommand)
+  let v4l2ctl = spawn('v4l2-ctl', v4l2ctlCommand.split(' '), {env: process.env})
+  v4l2ctl.on('error', function(err) { console.log(`error while setting bitrate: ${err.message}`) })
+  v4l2ctl.stderr.on('data', function (data) { console.log('v4l2-ctl', String(data)) })
 }

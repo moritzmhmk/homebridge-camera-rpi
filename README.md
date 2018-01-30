@@ -94,3 +94,16 @@ WantedBy=multi-user.target
 sudo systemctl enable hap-camera-rpi
 sudo systemctl start hap-camera-rpi
 ```
+
+## Options
+```json
+{
+  "name": "Pi Camera",
+  "id": "Pi Camera",
+  "rotation": 0,
+  "verticalFlip": false,
+  "horizontalFlip": false
+}
+```
+
+Note: `rotation` currently only works for `0` and `180` degrees.
