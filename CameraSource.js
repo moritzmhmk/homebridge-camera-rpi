@@ -94,9 +94,12 @@ Camera.prototype.prepareStream = function (request, callback) {
     let srtpKey = videoInfo['srtp_key']
     let srtpSalt = videoInfo['srtp_salt']
 
+    // SSRC is a 32 bit integer that is unique per stream
+    let ssrc = crypto.randomBytes(4).readUInt32BE(0, true);
+
     let videoResp = {
       port: targetPort,
-      ssrc: 1,
+      ssrc: ssrc,
       srtp_key: srtpKey,
       srtp_salt: srtpSalt
     }
@@ -105,7 +108,7 @@ Camera.prototype.prepareStream = function (request, callback) {
 
     sessionInfo['video_port'] = targetPort
     sessionInfo['video_srtp'] = Buffer.concat([srtpKey, srtpSalt])
-    sessionInfo['video_ssrc'] = 1
+    sessionInfo['video_ssrc'] = ssrc
   }
 
   let audioInfo = request['audio']
@@ -114,9 +117,12 @@ Camera.prototype.prepareStream = function (request, callback) {
     let srtpKey = audioInfo['srtp_key']
     let srtpSalt = audioInfo['srtp_salt']
 
+    // SSRC is a 32 bit integer that is unique per stream
+    let ssrc = crypto.randomBytes(4).readUInt32BE(0, true);
+
     let audioResp = {
       port: targetPort,
-      ssrc: 1,
+      ssrc: ssrc,
       srtp_key: srtpKey,
       srtp_salt: srtpSalt
     }
@@ -125,7 +131,7 @@ Camera.prototype.prepareStream = function (request, callback) {
 
     sessionInfo['audio_port'] = targetPort
     sessionInfo['audio_srtp'] = Buffer.concat([srtpKey, srtpSalt])
-    sessionInfo['audio_ssrc'] = 1
+    sessionInfo['audio_ssrc'] = ssrc
   }
 
   let currentAddress = ip.address()
@@ -169,10 +175,11 @@ Camera.prototype.handleStreamRequest = function (request) {
     let srtp = this.pendingSessions[sessionIdentifier]['video_srtp'].toString('base64')
     let address = this.pendingSessions[sessionIdentifier]['address']
     let port = this.pendingSessions[sessionIdentifier]['video_port']
+    let ssrc = this.pendingSessions[sessionIdentifier]["video_ssrc"];
 
     let ffmpegCommand = `\
 -f video4linux2 -input_format h264 -video_size ${width}x${height} -framerate ${fps} -i /dev/video0 \
--vcodec copy -an -payload_type 99 -ssrc 1 -f rtp \
+-vcodec copy -an -payload_type 99 -ssrc ${ssrc} -f rtp \
 -srtp_out_suite AES_CM_128_HMAC_SHA1_80 -srtp_out_params ${srtp} \
 srtp://${address}:${port}?rtcpport=${port}&localrtcpport=${port}&pkt_size=1378`
     console.log(ffmpegCommand)
