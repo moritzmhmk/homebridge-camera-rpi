@@ -2,6 +2,7 @@
 
 var ip = require('ip')
 var spawn = require('child_process').spawn
+var crypto = require('crypto');
 
 module.exports = Camera
 
