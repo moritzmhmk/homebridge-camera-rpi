@@ -95,7 +95,9 @@ Camera.prototype.prepareStream = function (request, callback) {
     let srtpSalt = videoInfo['srtp_salt']
 
     // SSRC is a 32 bit integer that is unique per stream
-    let ssrc = crypto.randomBytes(4).readUInt32BE(0, true);
+    let ssrcSource = crypto.randomBytes(4);
+    ssrcSource[0] = 0;
+    let ssrc = ssrcSource.readInt32BE(0, true);
 
     let videoResp = {
       port: targetPort,
@@ -118,7 +120,9 @@ Camera.prototype.prepareStream = function (request, callback) {
     let srtpSalt = audioInfo['srtp_salt']
 
     // SSRC is a 32 bit integer that is unique per stream
-    let ssrc = crypto.randomBytes(4).readUInt32BE(0, true);
+    let ssrcSource = crypto.randomBytes(4);
+    ssrcSource[0] = 0;
+    let ssrc = ssrcSource.readInt32BE(0, true);
 
     let audioResp = {
       port: targetPort,
