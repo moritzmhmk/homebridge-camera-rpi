@@ -96,9 +96,9 @@ Camera.prototype.prepareStream = function (request, callback) {
     let srtpSalt = videoInfo['srtp_salt']
 
     // SSRC is a 32 bit integer that is unique per stream
-    let ssrcSource = crypto.randomBytes(4);
-    ssrcSource[0] = 0;
-    let ssrc = ssrcSource.readInt32BE(0, true);
+    let ssrcSource = crypto.randomBytes(4)
+    ssrcSource[0] = 0
+    let ssrc = ssrcSource.readInt32BE(0, true)
 
     let videoResp = {
       port: targetPort,
@@ -121,9 +121,9 @@ Camera.prototype.prepareStream = function (request, callback) {
     let srtpSalt = audioInfo['srtp_salt']
 
     // SSRC is a 32 bit integer that is unique per stream
-    let ssrcSource = crypto.randomBytes(4);
-    ssrcSource[0] = 0;
-    let ssrc = ssrcSource.readInt32BE(0, true);
+    let ssrcSource = crypto.randomBytes(4)
+    ssrcSource[0] = 0
+    let ssrc = ssrcSource.readInt32BE(0, true)
 
     let audioResp = {
       port: targetPort,
@@ -180,7 +180,7 @@ Camera.prototype.handleStreamRequest = function (request) {
     let srtp = this.pendingSessions[sessionIdentifier]['video_srtp'].toString('base64')
     let address = this.pendingSessions[sessionIdentifier]['address']
     let port = this.pendingSessions[sessionIdentifier]['video_port']
-    let ssrc = this.pendingSessions[sessionIdentifier]["video_ssrc"];
+    let ssrc = this.pendingSessions[sessionIdentifier]['video_ssrc']
 
     let ffmpegCommand = `\
 -f video4linux2 -input_format h264 -video_size ${width}x${height} -framerate ${fps} -i /dev/video0 \
