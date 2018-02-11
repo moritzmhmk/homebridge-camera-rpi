@@ -21,8 +21,8 @@ function Camera (hap, conf) {
     srtp: true, // Supports SRTP AES_CM_128_HMAC_SHA1_80 encryption
     video: {
       resolutions: [
-        //[1920, 1080, 30], // Width, Height, framerate
-        //[1280, 960, 30],
+        // [1920, 1080, 30], // Width, Height, framerate
+        // [1280, 960, 30],
         [1280, 720, 30],
         [1024, 768, 30],
         [640, 480, 30],
@@ -65,10 +65,10 @@ Camera.prototype.handleSnapshotRequest = function (request, callback) {
 -vframes 1 -f mjpeg -`
   console.log(ffmpegCommand)
   let ffmpeg = spawn('ffmpeg', ffmpegCommand.split(' '), {env: process.env})
-  var imageBuffer = Buffer(0)
+  var imageBuffer = Buffer.alloc(0)
   ffmpeg.stdout.on('data', function (data) { imageBuffer = Buffer.concat([imageBuffer, data]) })
   ffmpeg.stderr.on('data', function (data) { console.log('ffmpeg', String(data)) })
-  ffmpeg.on('close', function (code) { callback(undefined, imageBuffer) })
+  ffmpeg.on('close', function (code) { callback(null, imageBuffer) })
 }
 
 Camera.prototype.handleCloseConnection = function (connectionID) {
@@ -225,6 +225,6 @@ Camera.prototype._v4l2CTLSetCTRL = function (name, value) {
   let v4l2ctlCommand = `--set-ctrl ${name}=${value}`
   console.log(v4l2ctlCommand)
   let v4l2ctl = spawn('v4l2-ctl', v4l2ctlCommand.split(' '), {env: process.env})
-  v4l2ctl.on('error', function(err) { console.log(`error while setting bitrate: ${err.message}`) })
+  v4l2ctl.on('error', function (err) { console.log(`error while setting ${name}: ${err.message}`) })
   v4l2ctl.stderr.on('data', function (data) { console.log('v4l2-ctl', String(data)) })
 }
