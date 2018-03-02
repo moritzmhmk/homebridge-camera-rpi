@@ -100,10 +100,10 @@ sudo systemctl start hap-camera-rpi
 {
   "name": "Pi Camera",
   "id": "Pi Camera",
-  "rotation": 0,
+  "rotate": 0,
   "verticalFlip": false,
   "horizontalFlip": false
 }
 ```
 
-Note: `rotation` currently only works for `0` and `180` degrees.
+Note: `rotate` currently only works for `0` and `180` degrees.
