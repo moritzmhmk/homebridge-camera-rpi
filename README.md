@@ -6,7 +6,7 @@ Note: An SD card image is available [here](https://github.com/moritzmhmk/buildro
 ## Prerequisite
 
 * camera module activated (`raspi-config`)
-* module `bcm2835-v4l2` loaded (`sudo modprobe bcm2835-v4l2`)
+* module `bcm2835-v4l2` loaded (add `bcm2835-v4l2` to `/etc/modules` and reboot)
 * ffmpeg installed (`sudo apt install ffmpeg`)
 
 ## Installation (as homebridge plugin)
