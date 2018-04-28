@@ -102,7 +102,8 @@ sudo systemctl start hap-camera-rpi
   "id": "Pi Camera",
   "rotate": 0,
   "verticalFlip": false,
-  "horizontalFlip": false
+  "horizontalFlip": false,
+  "debug": false
 }
 ```
 

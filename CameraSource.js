@@ -11,6 +11,7 @@ function Camera (hap, conf) {
   this.conf = conf
   this.services = []
   this.streamControllers = []
+  this.debug = conf.debug === true
 
   this.pendingSessions = {}
   this.ongoingSessions = {}
@@ -63,11 +64,15 @@ Camera.prototype.handleSnapshotRequest = function (request, callback) {
   let ffmpegCommand = `\
 -f video4linux2 -input_format mjpeg -video_size ${request.width}x${request.height} -i /dev/video0 \
 -vframes 1 -f mjpeg -`
-  console.log(ffmpegCommand)
+  if (this.debug) {
+    console.log(ffmpegCommand)
+  }
   let ffmpeg = spawn('ffmpeg', ffmpegCommand.split(' '), {env: process.env})
   var imageBuffer = Buffer.alloc(0)
   ffmpeg.stdout.on('data', function (data) { imageBuffer = Buffer.concat([imageBuffer, data]) })
-  ffmpeg.stderr.on('data', function (data) { console.log('ffmpeg', String(data)) })
+  if (this.debug) {
+    ffmpeg.stderr.on('data', function (data) { console.log('ffmpeg', String(data)) })
+  }
   ffmpeg.on('close', function (code) { callback(null, imageBuffer) })
 }
 
@@ -187,9 +192,13 @@ Camera.prototype.handleStreamRequest = function (request) {
 -vcodec copy -an -payload_type 99 -ssrc ${ssrc} -f rtp \
 -srtp_out_suite AES_CM_128_HMAC_SHA1_80 -srtp_out_params ${srtp} \
 srtp://${address}:${port}?rtcpport=${port}&localrtcpport=${port}&pkt_size=1378`
-    console.log(ffmpegCommand)
+    if (this.debug) {
+      console.log(ffmpegCommand)
+    }
     let ffmpeg = spawn('ffmpeg', ffmpegCommand.split(' '), {env: process.env})
-    ffmpeg.stderr.on('data', function (data) { console.log('ffmpeg', String(data)) })
+    if (this.debug) {
+      ffmpeg.stderr.on('data', function (data) { console.log('ffmpeg', String(data)) })
+    }
     this.ongoingSessions[sessionIdentifier] = ffmpeg
 
     delete this.pendingSessions[sessionIdentifier]
@@ -223,8 +232,12 @@ Camera.prototype._createStreamControllers = function (maxStreams, options) {
 
 Camera.prototype._v4l2CTLSetCTRL = function (name, value) {
   let v4l2ctlCommand = `--set-ctrl ${name}=${value}`
-  console.log(v4l2ctlCommand)
+  if (this.debug) {
+    console.log(v4l2ctlCommand)
+  }
   let v4l2ctl = spawn('v4l2-ctl', v4l2ctlCommand.split(' '), {env: process.env})
   v4l2ctl.on('error', function (err) { console.log(`error while setting ${name}: ${err.message}`) })
-  v4l2ctl.stderr.on('data', function (data) { console.log('v4l2-ctl', String(data)) })
+  if (this.debug) {
+    v4l2ctl.stderr.on('data', function (data) { console.log('v4l2-ctl', String(data)) })
+  }
 }
