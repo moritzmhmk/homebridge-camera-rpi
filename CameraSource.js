@@ -6,9 +6,10 @@ var crypto = require('crypto')
 
 module.exports = Camera
 
-function Camera (hap, conf) {
+function Camera (hap, conf, log) {
   this.hap = hap
   this.conf = conf
+  this.log = log
   this.services = []
   this.streamControllers = []
   this.debug = conf.debug === true
@@ -65,15 +66,29 @@ Camera.prototype.handleSnapshotRequest = function (request, callback) {
 -f video4linux2 -input_format mjpeg -video_size ${request.width}x${request.height} -i /dev/video0 \
 -vframes 1 -f mjpeg -`
   if (this.debug) {
-    console.log(ffmpegCommand)
+    console.log('ffmpeg', ffmpegCommand)
   }
   let ffmpeg = spawn('ffmpeg', ffmpegCommand.split(' '), {env: process.env})
+  let self = this
   var imageBuffer = Buffer.alloc(0)
   ffmpeg.stdout.on('data', function (data) { imageBuffer = Buffer.concat([imageBuffer, data]) })
   if (this.debug) {
-    ffmpeg.stderr.on('data', function (data) { console.log('ffmpeg', String(data)) })
+    ffmpeg.stderr.on('data', function (data) { console.log(String(data)) })
   }
-  ffmpeg.on('close', function (code) { callback(null, imageBuffer) })
+  ffmpeg.on('error', function(error) {
+    self.log('Failed to take a snapshot')
+    if (self.debug) {
+      console.log('Error:', error.message)
+    }
+  })
+  ffmpeg.on('close', function (code) {
+    if (!code || code === 255) {
+      self.log(`Took snapshot at ${request.width}x${request.height}`)
+      callback(null, imageBuffer)
+    } else {
+      self.log(`ffmpeg exited with code ${code}`)
+    }
+  })
 }
 
 Camera.prototype.handleCloseConnection = function (connectionID) {
@@ -187,18 +202,35 @@ Camera.prototype.handleStreamRequest = function (request) {
     let port = this.pendingSessions[sessionIdentifier]['video_port']
     let ssrc = this.pendingSessions[sessionIdentifier]['video_ssrc']
 
+    this.log(`Starting video stream (${width}x${height}, ${fps} fps, ${bitrate} kbps)`)
+    let self = this
     let ffmpegCommand = `\
 -f video4linux2 -input_format h264 -video_size ${width}x${height} -framerate ${fps} -i /dev/video0 \
 -vcodec copy -an -payload_type 99 -ssrc ${ssrc} -f rtp \
 -srtp_out_suite AES_CM_128_HMAC_SHA1_80 -srtp_out_params ${srtp} \
 srtp://${address}:${port}?rtcpport=${port}&localrtcpport=${port}&pkt_size=1378`
     if (this.debug) {
-      console.log(ffmpegCommand)
+      console.log('ffmpeg', ffmpegCommand)
     }
     let ffmpeg = spawn('ffmpeg', ffmpegCommand.split(' '), {env: process.env})
-    if (this.debug) {
-      ffmpeg.stderr.on('data', function (data) { console.log('ffmpeg', String(data)) })
-    }
+    ffmpeg.stderr.on('data', function (data) {
+      if (self.debug) {
+        console.log(String(data))
+      }
+    })
+    ffmpeg.on('error', function(error) {
+      self.log('Failed to start video stream')
+      if (self.debug) {
+        console.log('Error:', error.message)
+      }
+    })
+    ffmpeg.on('close', function(code) {
+      if (!code || code === 255) {
+        self.log('Video stream stopped')
+      } else {
+        self.log(`ffmpeg exited with code ${code}`)
+      }
+    })
     this.ongoingSessions[sessionIdentifier] = ffmpeg
 
     delete this.pendingSessions[sessionIdentifier]
@@ -231,13 +263,19 @@ Camera.prototype._createStreamControllers = function (maxStreams, options) {
 }
 
 Camera.prototype._v4l2CTLSetCTRL = function (name, value) {
+  let self = this
   let v4l2ctlCommand = `--set-ctrl ${name}=${value}`
   if (this.debug) {
-    console.log(v4l2ctlCommand)
+    console.log('v4l2-ctl', v4l2ctlCommand)
   }
   let v4l2ctl = spawn('v4l2-ctl', v4l2ctlCommand.split(' '), {env: process.env})
-  v4l2ctl.on('error', function (err) { console.log(`error while setting ${name}: ${err.message}`) })
+  v4l2ctl.on('error', function (err) {
+    self.log(`Failed to set '${name}' to '${value}'`)
+    if (self.debug) {
+      console.log('Error:', err.message)
+    }
+  })
   if (this.debug) {
-    v4l2ctl.stderr.on('data', function (data) { console.log('v4l2-ctl', String(data)) })
+    v4l2ctl.stderr.on('data', function (data) { console.log(String(data)) })
   }
 }
