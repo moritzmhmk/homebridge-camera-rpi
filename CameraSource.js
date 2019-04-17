@@ -175,17 +175,15 @@ Camera.prototype.handleStreamRequest = function (request) {
       bitrate = request['video']['max_bit_rate']
     }
 
-    this._v4l2CTLSetCTRL('video_bitrate', `${bitrate}000`)
-
     let srtp = this.pendingSessions[sessionIdentifier]['video_srtp'].toString('base64')
     let address = this.pendingSessions[sessionIdentifier]['address']
     let port = this.pendingSessions[sessionIdentifier]['video_port']
     let ssrc = this.pendingSessions[sessionIdentifier]['video_ssrc']
 
     let ffmpegCommand = `\
--f video4linux2 -input_format h264 -video_size ${width}x${height} -framerate ${fps} -i /dev/video0 \
--vcodec copy -an -payload_type 99 -ssrc ${ssrc} -f rtp \
--srtp_out_suite AES_CM_128_HMAC_SHA1_80 -srtp_out_params ${srtp} \
+-f video4linux2 -input_format yuv420p -video_size ${width}x${height} -i /dev/video0 \
+-vcodec h264_omx -an -pix_fmt yuv420p -r ${fps} -b:v ${bitrate}k -bufsize ${bitrate}k -maxrate ${bitrate}k \
+-payload_type 99 -ssrc ${ssrc} -f rtp -srtp_out_suite AES_CM_128_HMAC_SHA1_80 -srtp_out_params ${srtp} \
 srtp://${address}:${port}?rtcpport=${port}&localrtcpport=${port}&pkt_size=1378`
     console.log(ffmpegCommand)
     let ffmpeg = spawn('ffmpeg', ffmpegCommand.split(' '), {env: process.env})
