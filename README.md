@@ -36,6 +36,8 @@ add extra camera accessory in the home app (the setup code is the same as for ho
 
 ## Installation (standalone)
 
+make sure `git` and `node` are installed. (Type ``sudo apt install git`` to install git and read [this](https://gist.github.com/moritzmhmk/2711aad2b2745c7d02f7062fb33ffad5) to install node)
+
 optionally install in `opt`:
 
 ```bash
