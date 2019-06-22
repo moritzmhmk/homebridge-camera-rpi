@@ -68,7 +68,7 @@ Camera.prototype.handleSnapshotRequest = function (request, callback) {
   if (this.debug) {
     console.log('ffmpeg', ffmpegCommand)
   }
-  let ffmpeg = spawn('ffmpeg', ffmpegCommand.split(' '), {env: process.env})
+  let ffmpeg = spawn('ffmpeg', ffmpegCommand.split(' '), { env: process.env })
   var imageBuffer = Buffer.alloc(0)
   ffmpeg.stdout.on('data', function (data) { imageBuffer = Buffer.concat([imageBuffer, data]) })
   if (this.debug) {
@@ -210,7 +210,7 @@ srtp://${address}:${port}?rtcpport=${port}&localrtcpport=${port}&pkt_size=1378`
     if (this.debug) {
       console.log('ffmpeg', ffmpegCommand)
     }
-    let ffmpeg = spawn('ffmpeg', ffmpegCommand.split(' '), {env: process.env})
+    let ffmpeg = spawn('ffmpeg', ffmpegCommand.split(' '), { env: process.env })
     ffmpeg.stderr.on('data', data => {
       if (this.debug) {
         console.log(String(data))
@@ -265,7 +265,7 @@ Camera.prototype._v4l2CTLSetCTRL = function (name, value) {
   if (this.debug) {
     console.log('v4l2-ctl', v4l2ctlCommand)
   }
-  let v4l2ctl = spawn('v4l2-ctl', v4l2ctlCommand.split(' '), {env: process.env})
+  let v4l2ctl = spawn('v4l2-ctl', v4l2ctlCommand.split(' '), { env: process.env })
   v4l2ctl.on('error', err => {
     this.log(`Failed to set '${name}' to '${value}'`)
     if (this.debug) {
