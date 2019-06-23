@@ -62,7 +62,7 @@ class StreamDelegate {
       this.log(`Starting video stream (${width}x${height}, ${fps} fps, ${maxBitRate} kbps)`)
 
       let ffmpegCommand = `\
--f video4linux2 -input_format h264 -video_size ${width}x${height} -framerate ${fps} -i /dev/video0 \
+-f video4linux2 -input_format h264 -video_size ${width}x${height} -framerate ${fps} -timestamps abs -i /dev/video0 \
 -vcodec copy -copyts -an \
 -payload_type ${this.videoFormat.pt} \
 ${getFFMPEGsrtpCommand(this.stream.targetAddress, this.stream.video)}`
