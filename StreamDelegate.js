@@ -54,11 +54,6 @@ class StreamDelegate {
 
       v4l2ctl.setCtrl('video_bitrate', `${this.videoFormat.max_bit_rate}000`, this.log, this.debug)
 
-      let srtp = Buffer.concat([this.stream.video.srtp_key, this.stream.video.srtp_salt]).toString('base64')
-      let address = this.stream.targetAddress
-      let port = this.stream.video.port
-      let ssrc = this.stream.video.ssrc
-
       let width = this.videoFormat.width
       let height = this.videoFormat.height
       let fps = this.videoFormat.fps
@@ -68,9 +63,9 @@ class StreamDelegate {
 
       let ffmpegCommand = `\
 -f video4linux2 -input_format h264 -video_size ${width}x${height} -framerate ${fps} -i /dev/video0 \
--vcodec copy -copyts -an -payload_type 99 -ssrc ${ssrc} -f rtp \
--srtp_out_suite AES_CM_128_HMAC_SHA1_80 -srtp_out_params ${srtp} \
-srtp://${address}:${port}?rtcpport=${port}&localrtcpport=${port}&pkt_size=1378`
+-vcodec copy -copyts -an \
+-payload_type ${this.videoFormat.pt} \
+${getFFMPEGsrtpCommand(this.stream.targetAddress, this.stream.video)}`
 
       this.stream.video.ffmpeg = ffmpeg(ffmpegCommand, this.log, this.debug)
       this.stream.video.ffmpeg.on('close', code => {
@@ -115,6 +110,19 @@ const getCurrentAddress = () => {
     address,
     type: ip.isV4Format(address) ? 'v4' : 'v6'
   }
+}
+
+const getFFMPEGsrtpCommand = (targetAddress, streamParams) => {
+  return `\
+-ssrc ${streamParams.ssrc} \
+-f rtp \
+-srtp_out_suite AES_CM_128_HMAC_SHA1_80 \
+-srtp_out_params ${Buffer.concat([streamParams.srtp_key, streamParams.srtp_salt]).toString('base64')} \
+\
+srtp://${targetAddress}:${streamParams.port}\
+?rtcpport=${streamParams.port}\
+&localrtcpport=${streamParams.port}\
+&pkt_size=1378`
 }
 
 module.exports = StreamDelegate
