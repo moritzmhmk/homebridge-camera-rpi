@@ -3,14 +3,14 @@
 const ip = require('ip')
 const crypto = require('crypto')
 
-const v4l2ctl = require('./utils/v4l2ctl')
 const ffmpeg = require('./utils/ffmpeg')
 
 class StreamDelegate {
-  constructor (hap, conf, log) {
+  constructor (hap, conf, log, videoDevice) {
     this.hap = hap
     this.conf = conf
     this.log = log
+    this.videoDevice = videoDevice
     this.debug = conf.debug === true
 
     this.stream = {}
@@ -52,8 +52,6 @@ class StreamDelegate {
         ...request['video']
       }
 
-      v4l2ctl.setCtrl('video_bitrate', `${this.videoFormat.max_bit_rate}000`, this.log, this.debug)
-
       let width = this.videoFormat.width
       let height = this.videoFormat.height
       let fps = this.videoFormat.fps
@@ -62,8 +60,10 @@ class StreamDelegate {
       this.log(`Starting video stream (${width}x${height}, ${fps} fps, ${maxBitRate} kbps)`)
 
       let ffmpegCommand = `\
--f video4linux2 -input_format h264 -video_size ${width}x${height} -framerate ${fps} -timestamps abs -i /dev/video0 \
--vcodec copy -copyts -an \
+-f video4linux2 -input_format yuv420p -video_size ${width}x${height} -i ${this.videoDevice} \
+-vcodec h264_omx -pix_fmt yuv420p -tune zerolatency \
+-r ${fps} -b:v ${maxBitRate}k -bufsize ${maxBitRate}k -maxrate ${maxBitRate}k \
+-an \
 -payload_type ${this.videoFormat.pt} \
 ${getFFMPEGsrtpCommand(this.stream.targetAddress, this.stream.video)}`
 

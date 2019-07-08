@@ -59,7 +59,7 @@ class Camera {
 
   handleSnapshotRequest (request, callback) {
     let ffmpegCommand = `\
--f video4linux2 -input_format mjpeg -video_size ${request.width}x${request.height} -i /dev/video0 \
+-f video4linux2 -input_format yuv420p -video_size ${request.width}x${request.height} -i /dev/video1 \
 -vframes 1 -f mjpeg -`
     let _ffmpeg = ffmpeg(ffmpegCommand, this.log, this.debug)
     let imageBuffer = Buffer.alloc(0)
@@ -91,7 +91,7 @@ class Camera {
 
   _createStreamControllers (maxStreams, options) {
     for (var i = 0; i < maxStreams; i++) {
-      var streamDelegate = new StreamDelegate(this.hap, this.conf, this.log)
+      var streamDelegate = new StreamDelegate(this.hap, this.conf, this.log, `/dev/video${i + 2}`)
       var streamController = new this.hap.StreamController(i, options, streamDelegate)
 
       this.services.push(streamController.service)
