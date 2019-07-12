@@ -30,6 +30,8 @@ edit ``config.json`` and add platform ``rpi-camera``
 }
 ```
 
+add homebridge to the video group: sudo adduser homebridge video
+
 restart `homebridge`
 
 add extra camera accessory in the home app (the setup code is the same as for homebridge)
