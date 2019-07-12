@@ -30,7 +30,7 @@ edit ``config.json`` and add platform ``rpi-camera``
 }
 ```
 
-add homebridge to the video group: sudo adduser homebridge video
+add homebridge to the video group: ``sudo adduser homebridge video``
 
 restart `homebridge`
 
