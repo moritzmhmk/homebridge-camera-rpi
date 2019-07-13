@@ -9,6 +9,23 @@ Note: An SD card image is available [here](https://github.com/moritzmhmk/buildro
 * module `bcm2835-v4l2` loaded (add `bcm2835-v4l2` to `/etc/modules` and reboot)
 * ffmpeg installed (`sudo apt install ffmpeg`)
 
+* v4l2loopback installed (`sudo apt install v4l2loopback-dkms`, test with `sudo modprobe v4l2loopback devices=3`)
+* create file `/etc/systemd/system/camera-loopback.service`:
+```ini
+[Unit]
+Description=Set up loopback cameras
+
+[Service]
+ExecStartPre=/sbin/modprobe v4l2loopback devices=3
+ExecStart=/usr/bin/ffmpeg -f video4linux2 -input_format yuv420p -video_size 1280x720 -i /dev/video0 -codec copy -f v4l2 /dev/video1 -codec copy -f v4l2 /dev/video2 -codec copy -f v4l2 /dev/video3
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=default.target
+```
+* activate with `sudo systemctl enable camera-loopback` `sudo systemctl start camera-loopback` 
+
 ## Installation (as homebridge plugin)
 
 ```bash
