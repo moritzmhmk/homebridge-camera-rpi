@@ -20,5 +20,5 @@ Platform.prototype.configureAccessory = function (accessory) {}
 Platform.prototype.didFinishLaunching = function () {
   if (!this.config.cameras) return
   const configuredAccessories = this.config.cameras.map(conf => new this.CameraAccessory(conf))
-  this.api.publishCameraAccessories('rpi-camera', configuredAccessories)
+  this.api.publishCameraAccessories('homebridge-rpi-camera', configuredAccessories)
 }
