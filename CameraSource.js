@@ -62,13 +62,11 @@ function Camera (hap, conf, log) {
 }
 
 Camera.prototype.handleSnapshotRequest = function (request, callback) {
-  let ffmpegCommand = `\
--f video4linux2 -input_format mjpeg -video_size ${request.width}x${request.height} -i /dev/video0 \
--vframes 1 -f mjpeg -`
+  let ffmpegCommand = `-w ${request.width} -h ${request.height} -o - -n -awb auto -ex auto`
   if (this.debug) {
-    console.log('ffmpeg', ffmpegCommand)
+    console.log('raspistill', ffmpegCommand)
   }
-  let ffmpeg = spawn('ffmpeg', ffmpegCommand.split(' '), { env: process.env })
+  let ffmpeg = spawn('raspistill', ffmpegCommand.split(' '), { env: process.env })
   var imageBuffer = Buffer.alloc(0)
   ffmpeg.stdout.on('data', function (data) { imageBuffer = Buffer.concat([imageBuffer, data]) })
   if (this.debug) {
@@ -85,7 +83,7 @@ Camera.prototype.handleSnapshotRequest = function (request, callback) {
       this.log(`Took snapshot at ${request.width}x${request.height}`)
       callback(null, imageBuffer)
     } else {
-      this.log(`ffmpeg exited with code ${code}`)
+      this.log(`raspistill exited with code ${code}`)
     }
   })
 }
