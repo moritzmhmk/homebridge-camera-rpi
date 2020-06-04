@@ -1,6 +1,6 @@
 {
   "name": "homebridge-camera-rpi",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "raspberry pi camera plugin for homebridge",
   "main": "index.js",
   "scripts": {
